@@ -2314,6 +2314,7 @@ async function fetchCnyesRealtimeQuotes(manual = false) {
       updateCnyesStatusBadge();
     }
   } catch (err) {
+    console.warn('⚠️ 鉅亨網 API 連線微調：', err);
     if (manual) alert("⚠️ 鉅亨網報價連線稍有延遲，請稍候重試");
   } finally {
     if (manual && btn) {
@@ -2322,8 +2323,6 @@ async function fetchCnyesRealtimeQuotes(manual = false) {
         if (icon) icon.classList.remove("animate-spin");
       }, 500);
     }
-  }
-    console.warn('⚠️ 鉅亨網 API 連線微調：', err);
   }
 }
 
