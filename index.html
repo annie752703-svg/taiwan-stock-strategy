@@ -467,6 +467,9 @@
           <p class="text-xs text-mocha-700/80">以下顯示本期模型計算出的建議投資組合權重、對應配置本金與選入原因。想自己挑選股票與 ETF 組合？點擊右上方按鈕或 <a href="javascript:void(0)" onclick="toggleDIYModal()" class="text-caramel-600 font-bold underline hover:text-caramel-700">【🛠️ 開啟客製化自訂回測 DIY 實驗室】</a> 立即自訂配置！</p>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="fetchCnyesRealtimeQuotes(true)" class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1 shadow-sm transition active:scale-95">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 更新即時股價
+          </button>
           <button onclick="toggleDIYModal()" class="text-[11px] px-2.5 py-1 rounded-lg bg-caramel-500 hover:bg-caramel-600 text-white font-bold flex items-center gap-1 shadow-sm transition">
             <i data-lucide="sliders" class="w-3.5 h-3.5"></i> 🛠️ 客製化自訂回測 DIY 實驗室
           </button>
@@ -2258,7 +2261,13 @@ const CNYES_SYMBOLS = [
 let CNYES_REALTIME_QUOTES = {};
 let CNYES_LAST_UPDATE_TIME = null;
 
-async function fetchCnyesRealtimeQuotes() {
+async function fetchCnyesRealtimeQuotes(manual = false) {
+  const btn = document.getElementById("manualRefreshQuoteBtn");
+  const icon = document.getElementById("manualRefreshQuoteIcon");
+  if (manual && btn) {
+    btn.disabled = true;
+    if (icon) icon.classList.add("animate-spin");
+  }
   const batchParam = CNYES_SYMBOLS.map(c => `TWS:${c}:STOCK`).join(',');
   const url = `https://ws.api.cnyes.com/ws/api/v1/quote/quotes/${batchParam}`;
   
@@ -2295,6 +2304,9 @@ async function fetchCnyesRealtimeQuotes() {
 
       CNYES_LAST_UPDATE_TIME = new Date().toLocaleTimeString('zh-TW', { hour12: false });
       console.log('✅ 成功直連鉅亨網 API，已更新 25 檔標的即時股價！');
+      if (manual) {
+        showQuoteUpdateToast();
+      }
 
       // 更新畫面展示
       renderIndustryMap();
@@ -2302,8 +2314,33 @@ async function fetchCnyesRealtimeQuotes() {
       updateCnyesStatusBadge();
     }
   } catch (err) {
+    if (manual) alert("⚠️ 鉅亨網報價連線稍有延遲，請稍候重試");
+  } finally {
+    if (manual && btn) {
+      setTimeout(() => {
+        btn.disabled = false;
+        if (icon) icon.classList.remove("animate-spin");
+      }, 500);
+    }
+  }
     console.warn('⚠️ 鉅亨網 API 連線微調：', err);
   }
+}
+
+
+function showQuoteUpdateToast() {
+  let toast = document.getElementById("quoteUpdateToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "quoteUpdateToast";
+    toast.className = "fixed bottom-5 right-5 z-50 bg-mocha-900 text-white px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2 text-xs font-bold border border-caramel-400/40 transition-all duration-300 transform translate-y-10 opacity-0";
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> ⚡ 鉅亨網即時股價已成功刷新！（更新於 ${CNYES_LAST_UPDATE_TIME}）`;
+  toast.classList.remove("translate-y-10", "opacity-0");
+  setTimeout(() => {
+    toast.classList.add("translate-y-10", "opacity-0");
+  }, 2500);
 }
 
 function updateCnyesStatusBadge() {
