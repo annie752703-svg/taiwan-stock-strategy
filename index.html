@@ -128,6 +128,10 @@
       </div>
       
       <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="headerRefreshQuoteBtn" onclick="fetchCnyesRealtimeQuotes(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-1.5 transition shadow-sm shadow-emerald-600/20 active:scale-95">
+          <i data-lucide="refresh-cw" id="headerRefreshQuoteIcon" class="w-4 h-4"></i>
+          <span>🔄 即時更新股價</span>
+        </button>
         <button onclick="toggleDIYModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-caramel-500 text-white hover:bg-caramel-600 flex items-center gap-1.5 transition shadow-sm shadow-caramel-500/20">
           <i data-lucide="sliders" class="w-4 h-4"></i>
           <span>🛠️ 自訂回測 DIY</span>
@@ -467,9 +471,7 @@
           <p class="text-xs text-mocha-700/80">以下顯示本期模型計算出的建議投資組合權重、對應配置本金與選入原因。想自己挑選股票與 ETF 組合？點擊右上方按鈕或 <a href="javascript:void(0)" onclick="toggleDIYModal()" class="text-caramel-600 font-bold underline hover:text-caramel-700">【🛠️ 開啟客製化自訂回測 DIY 實驗室】</a> 立即自訂配置！</p>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="fetchCnyesRealtimeQuotes(true)" class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1 shadow-sm transition active:scale-95">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 更新即時股價
-          </button>
+          
           <button onclick="toggleDIYModal()" class="text-[11px] px-2.5 py-1 rounded-lg bg-caramel-500 hover:bg-caramel-600 text-white font-bold flex items-center gap-1 shadow-sm transition">
             <i data-lucide="sliders" class="w-3.5 h-3.5"></i> 🛠️ 客製化自訂回測 DIY 實驗室
           </button>
@@ -2262,8 +2264,8 @@ let CNYES_REALTIME_QUOTES = {};
 let CNYES_LAST_UPDATE_TIME = null;
 
 async function fetchCnyesRealtimeQuotes(manual = false) {
-  const btn = document.getElementById("manualRefreshQuoteBtn");
-  const icon = document.getElementById("manualRefreshQuoteIcon");
+  const btn = document.getElementById("headerRefreshQuoteBtn") || document.getElementById("manualRefreshQuoteBtn");
+  const icon = document.getElementById("headerRefreshQuoteIcon") || document.getElementById("manualRefreshQuoteIcon");
   if (manual && btn) {
     btn.disabled = true;
     if (icon) icon.classList.add("animate-spin");
